@@ -1,0 +1,23 @@
+{
+  "name": "djs-economy.js",
+  "version": "1.0.0",
+  "description": "A economy for discord.js",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "djs",
+    "economy",
+    "discord-economy",
+    "djs-economy",
+    "djs-money",
+    "discord-money"
+  ],
+  "author": "Vyrek",
+  "license": "Apache-2.0 License",
+  "dependencies": {
+    "mongoose": "^5.11.14"
+  }
+}
