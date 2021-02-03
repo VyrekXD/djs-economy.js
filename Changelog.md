@@ -1,3 +1,8 @@
+# 1.1.0
+
+Added the method pay to the Client and the class Player
+Added the leaderboard
+
 # 1.0.2
 
 Added the repo from package.json

@@ -1,3 +1,11 @@
+<p align="center">
+<img src="https://nodei.co/npm/djs-economy.js.png?downloads=true&downloadRank=true&stars=true"/>
+<br>
+</br>
+<img src="https://img.shields.io/npm/v/djs-economy.js/latest?color=%23FF0000&style=for-the-badge" />
+<img src="https://img.shields.io/npm/l/djs-economy.js?color=%23FF0000&style=for-the-badge" />
+</p>
+
 # djs-economy.js
 
 A economy for discord
@@ -44,16 +52,17 @@ new Client()
 |      `addMoney`      | id/money/bank  |string/number/boolean|Addmoney to a user using his ID the money, and if it is for the bank|    n/a    |Emits the addmoney event|
 |      `removeMoney`     | id/number/bank |string/number/boolean|Remove money to a user using his ID the money, and if it is for the bank|      n/a      |Emits the removemoney event|
 |       `searchPlayer`       | id  |       string           |   Search a user using his ID     |      n/a      | It returns the class Player  |
+|    `pay`    |   player1/player2/money/bank   | string/string/number/boolean  |   Pays a user, and if it is the money to the bank    |   n/a \| n/a \| n/a \|false  | |
 
 **Player**
 
-|        Method        |  Parameter  |    Type     |               Description               |    Default    |     Notes     |
+|        Method        |  Parameter  |    Type     |               Description               |     Default      |     Notes     |
 | :------------------: |:----------: |:--------------: | :-------------------------------------: | :-----------: |  :---------:  |
 |      `toData`        |    n/a      |  n/a        | Returns the raw data of the user |     n/a      |Its a getter no function|
-|    `addMoney`        | money/bank  | number/boolean      | Adds the money to the actual user, and if it is for the bank |      n/a      |        |
-|      `removeMoney`   |  money/bank   | number/boolean  |   Removes the money to the actual user, and if it is for the bank    |      n/a      ||
+|    `addMoney`        | money/bank  | number/boolean      | Adds the money to the actual user, and if it is for the bank |   n/a |false    |        |
+|      `removeMoney`   |  money/bank   | number/boolean  |   Removes the money to the actual user, and if it is for the bank    |    n/a |false   ||
 |      `delete`        |      n/a      | n/a  |   Deletes the actual user    |      n/a      | |
-
+|      `pay`        |      id/money/bank      | string/number/boolean  |   Pays a user, and if it is the money to the bank    |   n/a \| n/a \|false  |      |
 ### Events
 
 **addmoney**

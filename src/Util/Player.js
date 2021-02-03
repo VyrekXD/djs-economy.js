@@ -1,5 +1,5 @@
-import PlayerModel from "./PlayerModel"
-import { Client } from "../Client"
+import PlayerModel from "./PlayerModel.js"
+import { Client } from "../Client.js"
 
 export class Player {
     /**
@@ -47,5 +47,14 @@ export class Player {
     async removeMoney(money, bank){
         return await this.client.removeMoney(this.id, money, bank)
     }
-
+    
+    /**
+     * Pay a user
+     * @param {string} id - The ID of the user to recieve the money
+     * @param {number} money The quantity of money
+     * @param {boolean} bank If the money goes to the bank of the user
+     */
+    async pay(id, money, bank = false){
+        await this.client.pay(this.id, id, money, bank)
+    }
 }

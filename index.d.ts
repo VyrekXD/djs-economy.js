@@ -55,6 +55,14 @@ declare class Player {
      * Deletes the actual user
      */
     public delete(): Promise<Boolean>
+
+    /**
+     * Pay a user
+     * @param id - The ID of the user to recieve the money
+     * @param money - The quantity of money
+     * @param bank - If the money goes to the bank of the user
+     */
+    public pay(id: string, money: number, bank: boolean): Promise<Boolean>
 }
 
 declare class Client extends EventEmitter {
@@ -101,6 +109,15 @@ declare class Client extends EventEmitter {
      * @param id - The ID of the user on the DB
      */
     public searchPlayer(id: string): Promise<Player>
+
+    /**
+     * Pay a user
+     * @param p1 - The ID of the player that gives the money
+     * @param p2 - The ID of the player that recieves the money
+     * @param money - The quantity of money
+     * @param bank - If the money goes to the bank
+     */
+    public pay(p1: string, p2: string, money: number, bank: boolean)
 }
 
 declare module "djs-economy.js" {

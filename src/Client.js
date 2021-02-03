@@ -1,8 +1,9 @@
 import { EventEmitter } from "events"
-import { EconomyError } from "./Util/EconomyError"
+import { EconomyError } from "./Util/EconomyError.js"
 import { connect } from "mongoose"
-import { Player } from "./Util/Player"
-import PlayerModel from "./Util/PlayerModel"
+import { Player } from "./Util/Player.js"
+import PlayerModel from "./Util/PlayerModel.js"
+import { isConnected, checkParam, checkPlayer } from "./Util/Utils.js"
 
 export class Client extends EventEmitter {
     constructor(){
@@ -16,7 +17,8 @@ export class Client extends EventEmitter {
      * @param {string} url - The URI of mongodb to connect to the DB
      */
     async mongoConnect(url){
-        if(!url)throw new EconomyError(`You need to put a url to connect mongo`)
+        if(!checkParam(url, 'string', `You need to put a url to connect mongoDB`, `You need to put a valid url to connect mongoDB (string)`))return;
+
         try {
             await connect(url, {
                 useUnifiedTopology: true,
@@ -27,7 +29,7 @@ export class Client extends EventEmitter {
             this.connected = true
             return this
         } catch (e) {
-            new EconomyError(e)
+            throw new EconomyError(e)
         }
     }
     
@@ -37,7 +39,9 @@ export class Client extends EventEmitter {
      * @returns {boolean} - If the delete of the user was succesfull it will returns a true
      */
     async deletePlayer(id){
-        if(!id)throw new EconomyError(`You need to put the ID of the user`)
+        if(!isConnected(this))return;
+        if(!checkParam(id, 'string', `You need to put the ID of the user`, `You need to put a valid user ID (string)`))return;
+
         try {
             let find = await PlayerModel.findOne({id})
             if(!find)throw new EconomyError(`That user isnt on the DB`)
@@ -45,7 +49,7 @@ export class Client extends EventEmitter {
             await PlayerModel.deleteOne({id})
             return true
         } catch (e) {
-            new EconomyError(e)
+            throw new EconomyError(e)
         }
     }
 
@@ -57,7 +61,8 @@ export class Client extends EventEmitter {
      * @fires Client#addmoney
      */
     async addMoney(id, money, bank = false){
-        if(!id)throw new EconomyError(`You need to put the ID of the user`)
+        if(!isConnected(this))return;
+        if(!checkParam(id, 'string', `You need to put the ID of the user`, `You need to put a valid user ID (string)`))return;
         if(!money)throw new EconomyError(`You need to put the quantity of money`)
         if(isNaN(money))throw new EconomyError(`The money need to be a valid number`)
         if(money <= 0)throw new EconomyError(`The money need to be more than 0`)
@@ -91,7 +96,7 @@ export class Client extends EventEmitter {
             find = await PlayerModel.findOne({id})
             return find 
         } catch(e){
-            new EconomyError(e)
+            throw new EconomyError(e)
         }
 
     }
@@ -103,7 +108,8 @@ export class Client extends EventEmitter {
      * @fires Client#removemoney
      */
     async removeMoney(id, money, bank = false){
-        if(!id)throw new EconomyError(`You need to put the ID of the user`)
+        if(!isConnected(this))return;
+        if(!checkParam(id, 'string', `You need to put the ID of the user`, `You need to put a valid user ID (string)`))return;
         if(!money)throw new EconomyError(`You need to put the quantity of money`)
         if(isNaN(money))throw new EconomyError(`The money need to be a valid number`)
         if(money <= 0)throw new EconomyError(`The money need to be more than 0`)
@@ -131,7 +137,7 @@ export class Client extends EventEmitter {
             find = await PlayerModel.findOne({id})
             return find
         } catch (e) {
-            new EconomyError(e)
+            throw new EconomyError(e)
         }
     }
 
@@ -141,7 +147,8 @@ export class Client extends EventEmitter {
      * @return {Player}
      */
     async searchPlayer(id){
-        if(!id)throw new EconomyError(`You need to put the ID of the user`)
+        if(!isConnected(this))return;
+        if(!checkParam(id, 'string', `You need to put the ID of the user`, `You need to put a valid user ID (string)`))return;
 
         try {
             let find = await PlayerModel.findOne({id})
@@ -149,7 +156,54 @@ export class Client extends EventEmitter {
 
             return new Player(this, find)
         } catch (e) {
-            new EconomyError(e)
+            throw new EconomyError(e)
         }
+    }
+    
+    /**
+     * Pay a user
+     * @param {string} p1 - The ID of the player that gives the money
+     * @param {string} p2 - The ID of the player that recieves the money
+     * @param {number} money - The quantity of money
+     * @param {boolean} bank - If the money goes to the bank
+     */
+    async pay(p1, p2, money, bank = false){
+        if(!isConnected(this))return;
+        if(!checkParam(p1, 'string', `You need to put the ID of the player 1`, `You need to put a valid player 1 ID (string)`))return;
+        if(!checkParam(p2, 'string', `You need to put the ID of the player 2`, `You need to put a valid player 2 ID (string)`))return;
+
+        try {
+            let f1 = await checkPlayer(p1)
+            let f2 = await checkPlayer(p2)
+
+            if(f1.money === 0)return false;
+            if(!bank){
+                await PlayerModel.updateOne({id: p1}, {$inc: {money: -money, total: -money}})
+                await PlayerModel.updateOne({id: p2}, {$inc: {money, total: money}})
+
+                return true;
+            } else {
+                await PlayerModel.updateOne({id: p1}, {$inc: {bank: -money, total: -money}})
+                await PlayerModel.updateOne({id: p2}, {$inc: {bank: money, total: money}})
+
+                return true;
+            }
+        } catch (e) {
+            throw new EconomyError(e)
+        }
+    }
+
+    /**
+     * Get the leaderboard
+     * @param {number} limit - The limit of docs to be retorned
+     * @param {function} filter - The filter of the docs
+     */
+    async leaderboard(limit, filter){
+        if(!isConnected(this))return;
+        if(!checkParam(limit, 'number', `You need to put a valid limit`, `The limit of the leaderboard needs to be a number`))return;
+        if(!checkParam(filter, 'function', `You need to put a valid filter`, `That isnt a function`))return;
+
+        let data = await PlayerModel.find().sort({total: 'asc'}).limit(limit)
+        return data.filter(filter)
     }
 }
